@@ -1,7 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import { Badge } from "../ui/badge";
 import { DollarSign, Package, ShoppingCart, TrendingUp, AlertTriangle } from "lucide-react";
-import { Chart, ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
+import { Chart, ChartContainer, ChartTooltip, ChartTooltipContent } from "../ui/chart";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 
 const salesData = [
