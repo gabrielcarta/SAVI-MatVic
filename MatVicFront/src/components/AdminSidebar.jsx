@@ -4,8 +4,8 @@ import {
   BarChart3,
   Smartphone,
 } from "lucide-react";
-import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
+import { Button } from "./ui/button";
+import { Separator } from "./ui/separator";
 
 export function Sidebar({ activeView, onViewChange }) {
   const menuItems = [
@@ -34,7 +34,7 @@ export function Sidebar({ activeView, onViewChange }) {
           <div>
             <h1 className="text-sidebar-foreground">CellAccess</h1>
             <p className="text-sm text-sidebar-foreground/70">
-              Admin Panel
+              CHIBOLEX
             </p>
           </div>
         </div>
