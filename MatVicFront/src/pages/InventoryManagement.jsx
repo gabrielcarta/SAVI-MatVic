@@ -7,7 +7,8 @@ const backupProducts = [
   { id_producto: 1, nombre: "Producto de ejemplo", descripcion: "Cargando desde servidor...", codigo: "EJ-001", categoria: "General", stock: 0, min_stock: 0, precio_unit: 0 }
 ];
 
-const categories = ["Fundas", "Cables", "Protectores", "Audio", "Cargadores", "Accesorios", "Otros"];
+// La lista de categorías ahora se genera dinámicamente desde los productos
+// ...existing code...
 
 const stores = [
   { id: 22, name: "Local N° 22" },
@@ -33,6 +34,8 @@ export default function InventoryManagement({ selectedStore, onStoreChange }) {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [editingProduct, setEditingProduct] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  // Categorías únicas extraídas de los productos
+  const categories = [...new Set(products.map(p => p.categoria).filter(Boolean))];
 
   // Cargar productos desde la API
   useEffect(() => {
@@ -391,7 +394,6 @@ export default function InventoryManagement({ selectedStore, onStoreChange }) {
               <thead className="bg-pickled-bluewood-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-pickled-bluewood-700 uppercase">Producto</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-pickled-bluewood-700 uppercase">Código</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-pickled-bluewood-700 uppercase">Categoría</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-pickled-bluewood-700 uppercase">Precio</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-pickled-bluewood-700 uppercase">Stock</th>
@@ -408,7 +410,6 @@ export default function InventoryManagement({ selectedStore, onStoreChange }) {
                         <div className="font-medium text-pickled-bluewood-800">{product.nombre}</div>
                         <div className="text-sm text-pickled-bluewood-500">{product.descripcion}</div>
                       </td>
-                      <td className="px-6 py-4 text-pickled-bluewood-700">{product.codigo}</td>
                       <td className="px-6 py-4 text-pickled-bluewood-700">{product.categoria}</td>
                       <td className="px-6 py-4 text-pickled-bluewood-700">{formatCLP(product.precio_unit)}</td>
                       <td className="px-6 py-4 text-pickled-bluewood-700">{product.stock} unidades</td>
