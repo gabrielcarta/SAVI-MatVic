@@ -1,6 +1,7 @@
-import React from 'react'
-import { DollarSign, Package, ShoppingCart, TrendingUp, AlertTriangle, MapPin } from "lucide-react";
+import { useState, useEffect } from 'react'
+import { DollarSign, Package, ShoppingCart, TrendingUp, AlertTriangle, MapPin, ChevronDown } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import StoreSelector from '../components/layout/StoreSelector';
 
 // Datos simulados por local
 const storeData = {
@@ -96,28 +97,71 @@ const getConsolidatedData = () => {
   return consolidated;
 };
 
-export default function Dashboard() {
-  const selectedStore = { id: 22, name: "Local N° 22", manager: "Ana García" };
+export default function Dashboard({ selectedStore, onStoreChange }) {
+  const [lowStockProducts, setLowStockProducts] = useState([]);
+  const [isLoadingAlerts, setIsLoadingAlerts] = useState(true);
+  const [totalProductsStock, setTotalProductsStock] = useState(0);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+
   const currentData = storeData[selectedStore.id];
   const consolidatedData = getConsolidatedData();
+
+  // Cargar productos con stock bajo desde la API
+  useEffect(() => {
+    fetchLowStockAlerts();
+    fetchTotalStock();
+  }, []);
+
+  const fetchLowStockAlerts = async () => {
+    setIsLoadingAlerts(true);
+    try {
+      const response = await fetch('https://matvicback.onrender.com/api/products/alerts');
+      if (!response.ok) {
+        throw new Error('Error al cargar alertas de stock');
+      }
+      const data = await response.json();
+      setLowStockProducts(data);
+    } catch (err) {
+      console.error('Error:', err);
+      // Usar datos de respaldo si falla
+      setLowStockProducts(consolidatedData.allLowStockProducts);
+    } finally {
+      setIsLoadingAlerts(false);
+    }
+  };
+
+  const fetchTotalStock = async () => {
+    setIsLoadingProducts(true);
+    try {
+      const response = await fetch('https://matvicback.onrender.com/api/products');
+      if (!response.ok) {
+        throw new Error('Error al cargar productos');
+      }
+      const data = await response.json();
+      // Sumar el stock total de todos los productos
+      const totalStock = data.reduce((sum, product) => sum + (product.stock || 0), 0);
+      setTotalProductsStock(totalStock);
+    } catch (err) {
+      console.error('Error:', err);
+      // Usar datos de respaldo si falla
+      setTotalProductsStock(consolidatedData.totalProducts);
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <MapPin className="h-5 w-5 text-pickled-bluewood-600" />
-            <h1 className="text-2xl font-bold text-pickled-bluewood-800">{selectedStore?.name || "Dashboard"}</h1>
-          </div>
+        <div className="flex-1">
+          <h2 className="text-2xl font-bold text-pickled-bluewood-800 mb-2">Dashboard</h2>
           <p className="text-pickled-bluewood-500">
             Vista general del local de accesorios para celulares
           </p>
         </div>
-        <div className="text-right">
-          <p className="text-sm text-pickled-bluewood-500">Encargado</p>
-          <p className="font-medium text-pickled-bluewood-700">{selectedStore?.manager}</p>
-        </div>
+        
+        <StoreSelector selectedStore={selectedStore} onStoreChange={onStoreChange} />
       </div>
 
       {/* Métricas principales */}
@@ -138,9 +182,15 @@ export default function Dashboard() {
             <h3 className="text-sm font-medium text-pickled-bluewood-700">Productos en Stock - Total</h3>
             <Package className="h-4 w-4 text-pickled-bluewood-400" />
           </div>
-          <div className="text-2xl font-bold text-pickled-bluewood-800">{consolidatedData.totalProducts}</div>
+          {isLoadingProducts ? (
+            <div className="text-2xl font-bold text-pickled-bluewood-800">
+              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-pickled-bluewood-600"></div>
+            </div>
+          ) : (
+            <div className="text-2xl font-bold text-pickled-bluewood-800">{totalProductsStock}</div>
+          )}
           <p className="text-xs text-pickled-bluewood-500 mt-1">
-            {consolidatedData.lowStockCount} productos con stock bajo
+            {lowStockProducts.length} productos con stock bajo
           </p>
         </div>
 
@@ -205,23 +255,35 @@ export default function Dashboard() {
               Productos que necesitan reposición urgente
             </p>
           </div>
-          <div className="space-y-3">
-            {consolidatedData.allLowStockProducts.map((product, index) => (
-              <div key={index} className="flex items-center justify-between py-2 border-b border-pickled-bluewood-100 last:border-b-0">
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-pickled-bluewood-800">{product.name}</span>
-                  <span className="text-xs text-pickled-bluewood-500">{product.location}</span>
+          
+          {isLoadingAlerts ? (
+            <div className="text-center py-4">
+              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-pickled-bluewood-600"></div>
+              <p className="text-sm text-pickled-bluewood-500 mt-2">Cargando alertas...</p>
+            </div>
+          ) : lowStockProducts.length === 0 ? (
+            <div className="text-center py-4 text-pickled-bluewood-500">
+              No hay productos con stock bajo
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {lowStockProducts.slice(0, 8).map((product) => (
+                <div key={product.id_producto} className="flex items-center justify-between py-2 border-b border-pickled-bluewood-100 last:border-b-0">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium text-pickled-bluewood-800">{product.nombre}</span>
+                    <span className="text-xs text-pickled-bluewood-500">{product.categoria}</span>
+                  </div>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    product.stock <= 2 
+                      ? 'bg-red-100 text-red-700' 
+                      : 'bg-pickled-bluewood-100 text-pickled-bluewood-700'
+                  }`}>
+                    {product.stock} unidades
+                  </span>
                 </div>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  product.stock <= 2 
-                    ? 'bg-red-100 text-red-700' 
-                    : 'bg-pickled-bluewood-100 text-pickled-bluewood-700'
-                }`}>
-                  {product.stock} unidades
-                </span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

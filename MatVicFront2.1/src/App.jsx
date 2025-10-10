@@ -2,15 +2,17 @@ import { useState, useEffect } from 'react'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Sidebar from './components/layout/Sidebard';
+import InventoryManagement from './pages/InventoryManagement';
+import SalesManagement from './pages/SalesManagement'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    // Verificar si hay token y está autenticado
     const token = localStorage.getItem('token');
     const isAuth = localStorage.getItem('isAuthenticated') === 'true';
     return token && isAuth;
   });
   const [activeView, setActiveView] = useState('dashboard');
+  const [selectedStore, setSelectedStore] = useState({ id: 22, name: "Local N° 22", manager: "Ana García" });
 
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
@@ -28,13 +30,13 @@ function App() {
   const renderActiveView = () => {
     switch (activeView) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard selectedStore={selectedStore} onStoreChange={setSelectedStore} />;
       case 'inventory':
-        return <InventoryManagement />;
+        return <InventoryManagement selectedStore={selectedStore} onStoreChange={setSelectedStore} />;
       case 'sales':
-        return <SalesManagement />;
+        return <SalesManagement selectedStore={selectedStore} onStoreChange={setSelectedStore} />;
       default:
-        return <Dashboard />;
+        return <Dashboard selectedStore={selectedStore} onStoreChange={setSelectedStore} />;
     }
   };
 
@@ -47,7 +49,7 @@ function App() {
             onViewChange={setActiveView}
             onLogout={handleLogout}
           />
-          <main className="flex-1 p-6 overflow-auto">
+          <main className="flex-1 p-6 overflow-auto h-screen">
             {renderActiveView()}
           </main>
         </div>

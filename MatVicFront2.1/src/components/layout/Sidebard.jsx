@@ -11,6 +11,21 @@ import { useState } from "react";
 
 export default function Sidebar({ activeView, onViewChange, onLogout }) {
   const [showUserMenu, setShowUserMenu] = useState(false);
+  
+  // Obtener datos del usuario desde localStorage
+  const getUserData = () => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        return JSON.parse(userStr);
+      } catch (e) {
+        return { username: 'Usuario', email: 'user@example.com' };
+      }
+    }
+    return { username: 'Usuario', email: 'user@example.com' };
+  };
+
+  const userData = getUserData();
 
   const menuItems = [
     {
@@ -31,14 +46,14 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
   ];
 
   return (
-    <div className="w-64 bg-slate-900 shadow-lg flex flex-col border-r border-slate-800">
+    <div className="w-64 h-screen sticky top-0 bg-pickled-bluewood-800 shadow-lg flex flex-col border-r border-pickled-bluewood-700">
       <div className="p-6 border-b border-slate-800">
         <div className="flex items-center gap-2">
-          <Smartphone className="h-8 w-8 text-purple-500" />
+          <Smartphone className="h-8 w-8 text-pickled-bluewood-700" />
           <div>
-            <h1 className="text-white font-semibold text-lg">CellAccess</h1>
+            <h1 className="text-white font-semibold text-lg">MatVic</h1>
             <p className="text-sm text-slate-400">
-              CHIBOLEX
+              SAVI
             </p>
           </div>
         </div>
@@ -54,7 +69,7 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
                 className={`w-full flex items-center justify-start px-4 py-2 rounded-md transition-colors duration-200 ${
                   activeView === item.id
                     ? "bg-slate-800 text-white"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                    : "text-slate-300 hover:bg-slate-800 hover:text-white"  
                 }`}
                 onClick={() => onViewChange(item.id)}
               >
@@ -69,7 +84,7 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
       <div className="p-4 border-t border-slate-800">
         <div className="text-xs text-slate-500 mb-4">
           <p>Accesorios de Celulares</p>
-          <p>Sistema de Gestión v1.0</p>
+          <p>Sistema de Gestión SAVI v1.0</p>
         </div>
 
         {/* User Card */}
@@ -81,9 +96,13 @@ export default function Sidebar({ activeView, onViewChange, onLogout }) {
             <div className="w-10 h-10 rounded-full bg-pickled-bluewood-600 flex items-center justify-center">
               <User className="h-5 w-5 text-white" />
             </div>
-            <div className="flex-1 text-left">
-              <p className="text-sm font-medium text-white">Joseph Alpha</p>
-              <p className="text-xs text-slate-400">user@gmail.com</p>
+            <div className="flex-1 text-left overflow-hidden">
+              <p className="text-sm font-medium text-white truncate">
+                {userData.nombre || userData.username || 'Usuario'}
+              </p>
+              <p className="text-xs text-slate-400 truncate">
+                {userData.email || 'usuario@example.com'}
+              </p>
             </div>
             <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
           </button>
