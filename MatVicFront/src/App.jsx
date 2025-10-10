@@ -1,61 +1,63 @@
-import { useState, createContext, useContext } from "react";
-import { Sidebar } from "./components/AdminSidebar";
-import { Dashboard } from "./components/Dashboard";
-import { InventoryManagement } from "./components/InventoryManagement";
-import { SalesManagement } from "./components/SalesManagement";
-import './index.css'
+import { useState, useEffect } from 'react'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import Sidebar from './components/layout/Sidebard';
+import InventoryManagement from './pages/InventoryManagement';
+import SalesManagement from './pages/SalesManagement'
 
-const StoreContext = createContext({
-  selectedStore: null,
-  setSelectedStore: () => {},
-  stores: []
-});
-
-export const useStore = () => useContext(StoreContext);
-
-// Datos de los locales
-const stores = [
-  {
-    id: 22,
-    name: "Local N° 22",
-    address: "Av. Principal #123, Centro",
-    manager: "Ana García",
-    phone: "+1 234-567-8901"
-  },
-  {
-    id: 106,
-    name: "Local N° 106", 
-    address: "Centro Comercial Plaza Norte, Local 45",
-    manager: "Carlos López",
-    phone: "+1 234-567-8902"
-  }
-];
-
-export default function App() {
+function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    const token = localStorage.getItem('token');
+    const isAuth = localStorage.getItem('isAuthenticated') === 'true';
+    return token && isAuth;
+  });
   const [activeView, setActiveView] = useState('dashboard');
-  const [selectedStore, setSelectedStore] = useState(null);
+  const [selectedStore, setSelectedStore] = useState({ id: 22, name: "Local N° 22", manager: "Ana García" });
+
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
+    localStorage.setItem('isAuthenticated', 'true');
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setActiveView('dashboard');
+  };
 
   const renderActiveView = () => {
     switch (activeView) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard selectedStore={selectedStore} onStoreChange={setSelectedStore} />;
       case 'inventory':
-        return <InventoryManagement />;
+        return <InventoryManagement selectedStore={selectedStore} onStoreChange={setSelectedStore} />;
       case 'sales':
-        return <SalesManagement />;
+        return <SalesManagement selectedStore={selectedStore} onStoreChange={setSelectedStore} />;
       default:
-        return <Dashboard />;
+        return <Dashboard selectedStore={selectedStore} onStoreChange={setSelectedStore} />;
     }
   };
 
   return (
-    <StoreContext.Provider value={{ selectedStore, setSelectedStore, stores }}>
-      <div className="flex min-h-screen bg-background">
-        <Sidebar activeView={activeView} onViewChange={setActiveView} />
-        <main className="flex-1 p-6 overflow-auto bg-background">
-          {renderActiveView()}
-        </main>
-      </div>
-    </StoreContext.Provider>
-  );
+    <>
+      {isAuthenticated ? (
+        <div className="flex min-h-screen bg-gray-50">
+          <Sidebar 
+            activeView={activeView} 
+            onViewChange={setActiveView}
+            onLogout={handleLogout}
+          />
+          <main className="flex-1 p-6 overflow-auto h-screen">
+            {renderActiveView()}
+          </main>
+        </div>
+      ) : (
+        <Login onLoginSuccess={handleLoginSuccess} />
+      )}
+    </>
+  )
 }
+
+export default App
