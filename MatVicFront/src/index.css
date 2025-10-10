@@ -1,10 +1,20 @@
 @import "tailwindcss";
 
-* {
-  border-color: hsl(var(--border));
-}
-
-body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
+@layer utilities {
+  .bg-pickled-bluewood-50 { background-color: hsl(215, 46%, 95%); }
+  .bg-pickled-bluewood-100 { background-color: hsl(214, 47%, 87%); }
+  .bg-pickled-bluewood-200 { background-color: hsl(212, 48%, 76%); }
+  .bg-pickled-bluewood-300 { background-color: hsl(210, 48%, 65%); }
+  .bg-pickled-bluewood-400 { background-color: hsl(210, 32%, 55%); }
+  .bg-pickled-bluewood-500 { background-color: hsl(210, 27%, 45%); }
+  .bg-pickled-bluewood-600 { background-color: hsl(210, 28%, 37%); }
+  .bg-pickled-bluewood-700 { background-color: hsl(210, 29%, 29%); }
+  .bg-pickled-bluewood-800 { background-color: hsl(208, 43%, 7%); }
+  
+  .text-pickled-bluewood-700 { color: hsl(210, 29%, 29%); }
+  .text-pickled-bluewood-800 { color: hsl(208, 43%, 7%); }
+  
+  .border-pickled-bluewood-200 { border-color: hsl(212, 48%, 76%); }
+  
+  .ring-pickled-bluewood-600 { --tw-ring-color: hsl(210, 28%, 37%); }
 }
